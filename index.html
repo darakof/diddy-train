@@ -1,10 +1,120 @@
 <!DOCTYPE html>
-<html>
-    <body>
-        <head>
-            <title>scary women attack</title>
-            <link ref="icon" href="banana.png">
-        </head>
-        <p>hello</p>
-    </body>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Idle Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f5;
+            margin: 0;
+            padding: 0;
+        }
+        #game-container {
+            margin-top: 50px;
+        }
+        button {
+            padding: 15px 25px;
+            font-size: 18px;
+            margin: 20px;
+            cursor: pointer;
+        }
+        .upgrade {
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1>*Your Choice*: <span id="amount">0</span></h1>
+        <button id="click-button">Click Me!</button>
+        <div id="upgrades-container">
+            <h2>Upgrades</h2>
+            <div class="upgrade">
+                <button id="upgrade1">Upgrade 1 (Cost: 10)</button>
+                <p>Increases clicks by 1.</p>
+            </div>
+            <div class="upgrade">
+                <button id="upgrade2">Upgrade 2 (Cost: 50)</button>
+                <p>Increases clicks by 5.</p>
+            </div>
+            <div class="upgrade">
+                <button id="idle-upgrade">Idle Earning (Cost: 100)</button>
+                <p>Earns 1 *Your Choice* every second.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let amount = 0;
+        let clickValue = 1;
+        let idleEarning = 0;
+        let upgrade1Cost = 10;
+        let upgrade2Cost = 50;
+        let idleUpgradeCost = 100;
+
+        const amountDisplay = document.getElementById('amount');
+        const clickButton = document.getElementById('click-button');
+        const upgrade1Button = document.getElementById('upgrade1');
+        const upgrade2Button = document.getElementById('upgrade2');
+        const idleUpgradeButton = document.getElementById('idle-upgrade');
+
+        // Click button functionality
+        clickButton.addEventListener('click', () => {
+            amount += clickValue;
+            updateAmountDisplay();
+        });
+
+        // Upgrade 1 functionality
+        upgrade1Button.addEventListener('click', () => {
+            if (amount >= upgrade1Cost) {
+                amount -= upgrade1Cost;
+                clickValue += 1;
+                upgrade1Cost = Math.floor(upgrade1Cost * 1.5);
+                upgrade1Button.textContent = `Upgrade 1 (Cost: ${upgrade1Cost})`;
+                updateAmountDisplay();
+            } else {
+                alert('Not enough *Your Choice*!');
+            }
+        });
+
+        // Upgrade 2 functionality
+        upgrade2Button.addEventListener('click', () => {
+            if (amount >= upgrade2Cost) {
+                amount -= upgrade2Cost;
+                clickValue += 5;
+                upgrade2Cost = Math.floor(upgrade2Cost * 1.5);
+                upgrade2Button.textContent = `Upgrade 2 (Cost: ${upgrade2Cost})`;
+                updateAmountDisplay();
+            } else {
+                alert('Not enough *Your Choice*!');
+            }
+        });
+
+        // Idle earning upgrade functionality
+        idleUpgradeButton.addEventListener('click', () => {
+            if (amount >= idleUpgradeCost) {
+                amount -= idleUpgradeCost;
+                idleEarning += 1;
+                idleUpgradeCost = Math.floor(idleUpgradeCost * 1.5);
+                idleUpgradeButton.textContent = `Idle Earning (Cost: ${idleUpgradeCost})`;
+                updateAmountDisplay();
+            } else {
+                alert('Not enough *Your Choice*!');
+            }
+        });
+
+        // Idle earning functionality
+        setInterval(() => {
+            amount += idleEarning;
+            updateAmountDisplay();
+        }, 1000);
+
+        function updateAmountDisplay() {
+            amountDisplay.textContent = amount;
+        }
+    </script>
+</body>
 </html>
