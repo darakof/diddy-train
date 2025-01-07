@@ -24,6 +24,19 @@
         .upgrade {
             margin: 10px;
         }
+        #notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #ffcccc;
+            color: #333;
+            padding: 10px 20px;
+            border-radius: 5px;
+            display: none;
+            font-size: 16px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
     </style>
 </head>
 <body>
@@ -47,6 +60,8 @@
         </div>
     </div>
 
+    <div id="notification">Not enough *Your Choice*!</div>
+
     <script>
         let amount = 0;
         let clickValue = 1;
@@ -60,6 +75,15 @@
         const upgrade1Button = document.getElementById('upgrade1');
         const upgrade2Button = document.getElementById('upgrade2');
         const idleUpgradeButton = document.getElementById('idle-upgrade');
+        const notification = document.getElementById('notification');
+
+        function showNotification(message) {
+            notification.textContent = message;
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 2000);
+        }
 
         // Click button functionality
         clickButton.addEventListener('click', () => {
@@ -76,7 +100,7 @@
                 upgrade1Button.textContent = `Upgrade 1 (Cost: ${upgrade1Cost})`;
                 updateAmountDisplay();
             } else {
-                alert('Not enough *Your Choice*!');
+                showNotification('Not enough *Your Choice*!');
             }
         });
 
@@ -89,7 +113,7 @@
                 upgrade2Button.textContent = `Upgrade 2 (Cost: ${upgrade2Cost})`;
                 updateAmountDisplay();
             } else {
-                alert('Not enough *Your Choice*!');
+                showNotification('Not enough *Your Choice*!');
             }
         });
 
@@ -102,7 +126,7 @@
                 idleUpgradeButton.textContent = `Idle Earning (Cost: ${idleUpgradeCost})`;
                 updateAmountDisplay();
             } else {
-                alert('Not enough *Your Choice*!');
+                showNotification('Not enough *Your Choice*!');
             }
         });
 
@@ -118,3 +142,4 @@
     </script>
 </body>
 </html>
+
