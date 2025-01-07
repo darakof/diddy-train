@@ -40,28 +40,28 @@
     </style>
 </head>
 <body>
-<p>v. 0.01</p>
+    <p>v. 0.01</p>
     <div id="game-container">
         <h1><b>baby oil</b>: <span id="amount">0</span></h1>
         <button id="click-button">Click Me!</button>
         <div id="upgrades-container">
             <h2>Upgrades</h2>
             <div class="upgrade">
-                <button id="upgrade1">Upgrade 1 (Cost: 10)</button>
+                <button id="upgrade1">Upgrade 1 (Cost: 10🍼)</button>
                 <p>Increases clicks by 1.</p>
             </div>
             <div class="upgrade">
-                <button id="upgrade2">Upgrade 2 (Cost: 50)</button>
+                <button id="upgrade2">Upgrade 2 (Cost: 50🍼)</button>
                 <p>Increases clicks by 5.</p>
             </div>
             <div class="upgrade">
-                <button id="idle-upgrade">Idle Earning (Cost: 100)</button>
-                <p>Earns 1 *Your Choice* every second.</p>
+                <button id="idle-upgrade">Idle Earning (Cost: 100🍼)</button>
+                <p>Earns 1 baby oil every second.</p>
             </div>
         </div>
     </div>
 
-    <div id="notification">Not enough *Your Choice*!</div>
+    <div id="notification">Not enough baby oil!</div>
 
     <script>
         let amount = 0;
@@ -98,7 +98,7 @@
                 amount -= upgrade1Cost;
                 clickValue += 1;
                 upgrade1Cost = Math.floor(upgrade1Cost * 1.5);
-                upgrade1Button.textContent = `Upgrade 1 (Cost: ${upgrade1Cost}&#128868;)`;
+                upgrade1Button.textContent = `Upgrade 1 (Cost: ${upgrade1Cost}🍼)`;
                 updateAmountDisplay();
             } else {
                 showNotification('Not enough baby oil!');
@@ -111,7 +111,7 @@
                 amount -= upgrade2Cost;
                 clickValue += 5;
                 upgrade2Cost = Math.floor(upgrade2Cost * 1.5);
-                upgrade2Button.textContent = `Upgrade 2 (Cost: ${upgrade2Cost}&#128868;)`;
+                upgrade2Button.textContent = `Upgrade 2 (Cost: ${upgrade2Cost}🍼)`;
                 updateAmountDisplay();
             } else {
                 showNotification('Not enough baby oil!');
@@ -124,7 +124,7 @@
                 amount -= idleUpgradeCost;
                 idleEarning += 1;
                 idleUpgradeCost = Math.floor(idleUpgradeCost * 1.5);
-                idleUpgradeButton.textContent = `Idle Earning (Cost: ${idleUpgradeCost}&#128868;)`;
+                idleUpgradeButton.textContent = `Idle Earning (Cost: ${idleUpgradeCost}🍼)`;
                 updateAmountDisplay();
             } else {
                 showNotification('Not enough baby oil!');
@@ -143,4 +143,3 @@
     </script>
 </body>
 </html>
-
