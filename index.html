@@ -11,9 +11,24 @@
             background-color: #f0f0f5;
             margin: 0;
             padding: 0;
+            display: flex;
+            flex-direction: row;
+            height: 100vh;
         }
-        #game-container {
-            margin-top: 50px;
+        #left-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: start;
+            align-items: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        #right-panel {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            border-left: 1px solid #ccc;
         }
         button {
             padding: 15px 25px;
@@ -44,43 +59,26 @@
             text-align: left;
             display: inline-block;
         }
-        .tile {
-            cursor: pointer;
-            display: inline-block;
-            padding: 10px;
-            margin: 2px;
-            background-color: #ddd;
-            border: 1px solid #aaa;
-            width: 50px;
-            height: 50px;
-            text-align: center;
-        }
-        .selected {
-            animation: blink 1s infinite;
-        }
-        @keyframes blink {
-            0% { border-color: red; }
-            50% { border-color: transparent; }
-            100% { border-color: red; }
-        }
         #inventory {
             margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <div id="game-container">
-        <h1>Gold (G): <span id="amount">0</span></h1>
-        <button id="click-button">Click Me!</button>
-        <div id="upgrades-container">
-            <h2>Upgrades</h2>
-            <div class="upgrade">
-                <button id="click-upgrade">Click Upgrade (Cost: 20G)</button>
-                <p>Increases clicks by 0.1.</p>
-            </div>
-            <div class="upgrade">
-                <button id="idle-upgrade">Idle Earning (Cost: 50G)</button>
-                <p>Earns 1 Gold per second.</p>
+    <div id="left-panel">
+        <div id="game-container">
+            <h1>Gold (G): <span id="amount">0</span></h1>
+            <button id="click-button">Click Me!</button>
+            <div id="upgrades-container">
+                <h2>Upgrades</h2>
+                <div class="upgrade">
+                    <button id="click-upgrade">Click Upgrade (Cost: 20G)</button>
+                    <p>Increases clicks by 1.</p>
+                </div>
+                <div class="upgrade">
+                    <button id="idle-upgrade">Idle Earning (Cost: 50G)</button>
+                    <p>Earns 1 Gold per second.</p>
+                </div>
             </div>
         </div>
         <div id="map-container">
@@ -97,6 +95,9 @@
                 <li id="quest-boss" data-cost="500" data-item="Boss Trophy">Defeat the Boss (Cost: 500G)</li>
             </ul>
         </div>
+    </div>
+
+    <div id="right-panel">
         <div id="inventory">
             <h2>Inventory</h2>
             <ul id="inventory-list">
@@ -129,38 +130,49 @@
 
         let selectedTile = null;
 
-        // Procedurally generated map
+        // Procedurally generated ASCII map
         const mapData = [
-            { type: "Village", description: "A peaceful village with friendly locals." },
-            { type: "Dungeon", description: "A dark dungeon filled with monsters." },
-            { type: "Forest", description: "A dense forest with hidden treasures." },
-            { type: "Lake", description: "A serene lake with crystal clear water." },
-            { type: "Mountain", description: "A tall mountain with a dangerous path." }
+            [{ type: "Village", description: "A peaceful village with friendly locals." }]
         ];
 
         function generateMap() {
-            mapData.forEach((tile, index) => {
-                const tileElement = document.createElement('div');
-                tileElement.classList.add('tile');
-                tileElement.textContent = tile.type[0];
-                tileElement.addEventListener('click', () => selectTile(tileElement, index));
-                mapContainer.appendChild(tileElement);
-            });
+            mapContainer.innerHTML = "";
+            for (let y = 0; y < mapData.length; y++) {
+                let row = "";
+                for (let x = 0; x < mapData[y].length; x++) {
+                    const tile = mapData[y][x];
+                    row += tile.selected ? `[${tile.type[0]}]` : ` ${tile.type[0]} `;
+                }
+                mapContainer.innerHTML += row + "\n";
+            }
         }
 
-        function selectTile(tileElement, index) {
-            if (selectedTile) {
-                selectedTile.classList.remove('selected');
+        function expandMap(x, y) {
+            if (x >= 0 && y >= 0 && x < mapData[0].length && y < mapData.length) {
+                const newTileTypes = ["Dungeon", "Forest", "Lake", "Mountain"];
+                const newTile = {
+                    type: newTileTypes[Math.floor(Math.random() * newTileTypes.length)],
+                    description: "A newly discovered area."
+                };
+                mapData[y][x] = newTile;
+                generateMap();
             }
-            selectedTile = tileElement;
-            selectedTile.classList.add('selected');
-            tileDescription.textContent = mapData[index].description;
-            enterButton.disabled = false;
+        }
+
+        function selectTile(x, y) {
+            if (mapData[y][x]) {
+                mapData.forEach(row => row.forEach(tile => (tile.selected = false)));
+                mapData[y][x].selected = true;
+                tileDescription.textContent = mapData[y][x].description;
+                enterButton.disabled = false;
+                generateMap();
+            }
         }
 
         enterButton.addEventListener('click', () => {
             if (selectedTile) {
-                alert(`You entered the ${selectedTile.textContent} - ${tileDescription.textContent}`);
+                alert(`You entered the tile: ${selectedTile.type}`);
+                expandMap(0, mapData.length);
             }
         });
 
@@ -174,7 +186,7 @@
         clickUpgradeButton.addEventListener('click', () => {
             if (amount >= clickUpgradeCost) {
                 amount -= clickUpgradeCost;
-                clickValue += 0.1;
+                clickValue += 1;
                 clickUpgradeCost = Math.floor(clickUpgradeCost * clickCostMultiplier);
                 clickUpgradeButton.textContent = `Click Upgrade (Cost: ${clickUpgradeCost}G)`;
                 updateAmountDisplay();
@@ -233,20 +245,14 @@
             amountDisplay.textContent = amount;
         }
 
-        // Template for creating more buttons
-        /*
-        Example Button Template:
-        <div class="upgrade">
-            <button id="new-upgrade">New Upgrade (Cost: X)</button>
-            <p>Description of the upgrade.</p>
-        </div>
-        */
-
-        // Template for creating more quests
-        /*
-        Example Quest Template:
-        <li id="new-quest" data-cost="X" data-item="New Item">New Quest (Cost: X Gold)</li>
-        */
+        // Show notification
+        function showNotification(message) {
+            notification.textContent = message;
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 2000);
+        }
 
         // Generate the initial map
         generateMap();
