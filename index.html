@@ -76,7 +76,7 @@
             <h2>Upgrades</h2>
             <div class="upgrade">
                 <button id="click-upgrade">Click Upgrade (Cost: 20G)</button>
-                <p>Increases clicks by 1.</p>
+                <p>Increases clicks by 0.1.</p>
             </div>
             <div class="upgrade">
                 <button id="idle-upgrade">Idle Earning (Cost: 50G)</button>
@@ -174,7 +174,7 @@
         clickUpgradeButton.addEventListener('click', () => {
             if (amount >= clickUpgradeCost) {
                 amount -= clickUpgradeCost;
-                clickValue += 1;
+                clickValue += 0.1;
                 clickUpgradeCost = Math.floor(clickUpgradeCost * clickCostMultiplier);
                 clickUpgradeButton.textContent = `Click Upgrade (Cost: ${clickUpgradeCost}G)`;
                 updateAmountDisplay();
