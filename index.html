@@ -37,54 +37,132 @@
             font-size: 16px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
+        #map-container {
+            margin: 20px;
+            white-space: pre;
+            font-family: monospace;
+            text-align: left;
+            display: inline-block;
+        }
+        .tile {
+            cursor: pointer;
+            display: inline-block;
+            padding: 10px;
+            margin: 2px;
+            background-color: #ddd;
+            border: 1px solid #aaa;
+            width: 50px;
+            height: 50px;
+            text-align: center;
+        }
+        .selected {
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            0% { border-color: red; }
+            50% { border-color: transparent; }
+            100% { border-color: red; }
+        }
+        #inventory {
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
-    <p>v. 0.01</p>
     <div id="game-container">
-        <h1><b>baby oil</b>: <span id="amount">0</span></h1>
+        <h1>Gold (G): <span id="amount">0</span></h1>
         <button id="click-button">Click Me!</button>
         <div id="upgrades-container">
             <h2>Upgrades</h2>
             <div class="upgrade">
-                <button id="upgrade1">Upgrade 1 (Cost: 10🍼)</button>
+                <button id="click-upgrade">Click Upgrade (Cost: 20G)</button>
                 <p>Increases clicks by 1.</p>
             </div>
             <div class="upgrade">
-                <button id="upgrade2">Upgrade 2 (Cost: 50🍼)</button>
-                <p>Increases clicks by 5.</p>
+                <button id="idle-upgrade">Idle Earning (Cost: 50G)</button>
+                <p>Earns 1 Gold per second.</p>
             </div>
-            <div class="upgrade">
-                <button id="idle-upgrade">Idle Earning (Cost: 100🍼)</button>
-                <p>Earns 1 baby oil every second.</p>
-            </div>
+        </div>
+        <div id="map-container">
+            <h2>Map</h2>
+            <div id="map"></div>
+            <button id="enter-button" disabled>Enter</button>
+            <p id="tile-description">Click a tile to see the description.</p>
+        </div>
+        <div id="quest-log">
+            <h2>Quests</h2>
+            <ul id="quest-list">
+                <li id="quest-village" data-cost="100" data-item="Village Map">Visit the Village (Cost: 100G)</li>
+                <li id="quest-dungeon" data-cost="200" data-item="Dungeon Key">Explore the Dungeon (Cost: 200G)</li>
+                <li id="quest-boss" data-cost="500" data-item="Boss Trophy">Defeat the Boss (Cost: 500G)</li>
+            </ul>
+        </div>
+        <div id="inventory">
+            <h2>Inventory</h2>
+            <ul id="inventory-list">
+                <li>No items yet...</li>
+            </ul>
         </div>
     </div>
 
-    <div id="notification">Not enough baby oil!</div>
+    <div id="notification">Not enough Gold!</div>
 
     <script>
         let amount = 0;
         let clickValue = 1;
         let idleEarning = 0;
-        let upgrade1Cost = 10;
-        let upgrade2Cost = 50;
-        let idleUpgradeCost = 100;
+        let clickUpgradeCost = 20;
+        let idleUpgradeCost = 50;
+        const clickCostMultiplier = 1.2;
+        const idleCostMultiplier = 1.1;
 
         const amountDisplay = document.getElementById('amount');
         const clickButton = document.getElementById('click-button');
-        const upgrade1Button = document.getElementById('upgrade1');
-        const upgrade2Button = document.getElementById('upgrade2');
+        const clickUpgradeButton = document.getElementById('click-upgrade');
         const idleUpgradeButton = document.getElementById('idle-upgrade');
         const notification = document.getElementById('notification');
+        const questList = document.getElementById('quest-list');
+        const inventoryList = document.getElementById('inventory-list');
+        const mapContainer = document.getElementById('map');
+        const enterButton = document.getElementById('enter-button');
+        const tileDescription = document.getElementById('tile-description');
 
-        function showNotification(message) {
-            notification.textContent = message;
-            notification.style.display = 'block';
-            setTimeout(() => {
-                notification.style.display = 'none';
-            }, 2000);
+        let selectedTile = null;
+
+        // Procedurally generated map
+        const mapData = [
+            { type: "Village", description: "A peaceful village with friendly locals." },
+            { type: "Dungeon", description: "A dark dungeon filled with monsters." },
+            { type: "Forest", description: "A dense forest with hidden treasures." },
+            { type: "Lake", description: "A serene lake with crystal clear water." },
+            { type: "Mountain", description: "A tall mountain with a dangerous path." }
+        ];
+
+        function generateMap() {
+            mapData.forEach((tile, index) => {
+                const tileElement = document.createElement('div');
+                tileElement.classList.add('tile');
+                tileElement.textContent = tile.type[0];
+                tileElement.addEventListener('click', () => selectTile(tileElement, index));
+                mapContainer.appendChild(tileElement);
+            });
         }
+
+        function selectTile(tileElement, index) {
+            if (selectedTile) {
+                selectedTile.classList.remove('selected');
+            }
+            selectedTile = tileElement;
+            selectedTile.classList.add('selected');
+            tileDescription.textContent = mapData[index].description;
+            enterButton.disabled = false;
+        }
+
+        enterButton.addEventListener('click', () => {
+            if (selectedTile) {
+                alert(`You entered the ${selectedTile.textContent} - ${tileDescription.textContent}`);
+            }
+        });
 
         // Click button functionality
         clickButton.addEventListener('click', () => {
@@ -92,29 +170,16 @@
             updateAmountDisplay();
         });
 
-        // Upgrade 1 functionality
-        upgrade1Button.addEventListener('click', () => {
-            if (amount >= upgrade1Cost) {
-                amount -= upgrade1Cost;
+        // Click upgrade functionality
+        clickUpgradeButton.addEventListener('click', () => {
+            if (amount >= clickUpgradeCost) {
+                amount -= clickUpgradeCost;
                 clickValue += 1;
-                upgrade1Cost = Math.floor(upgrade1Cost * 1.5);
-                upgrade1Button.textContent = `Upgrade 1 (Cost: ${upgrade1Cost}🍼)`;
+                clickUpgradeCost = Math.floor(clickUpgradeCost * clickCostMultiplier);
+                clickUpgradeButton.textContent = `Click Upgrade (Cost: ${clickUpgradeCost}G)`;
                 updateAmountDisplay();
             } else {
-                showNotification('Not enough baby oil!');
-            }
-        });
-
-        // Upgrade 2 functionality
-        upgrade2Button.addEventListener('click', () => {
-            if (amount >= upgrade2Cost) {
-                amount -= upgrade2Cost;
-                clickValue += 5;
-                upgrade2Cost = Math.floor(upgrade2Cost * 1.5);
-                upgrade2Button.textContent = `Upgrade 2 (Cost: ${upgrade2Cost}🍼)`;
-                updateAmountDisplay();
-            } else {
-                showNotification('Not enough baby oil!');
+                showNotification('Not enough Gold!');
             }
         });
 
@@ -123,11 +188,11 @@
             if (amount >= idleUpgradeCost) {
                 amount -= idleUpgradeCost;
                 idleEarning += 1;
-                idleUpgradeCost = Math.floor(idleUpgradeCost * 1.5);
-                idleUpgradeButton.textContent = `Idle Earning (Cost: ${idleUpgradeCost}🍼)`;
+                idleUpgradeCost = Math.floor(idleUpgradeCost * idleCostMultiplier);
+                idleUpgradeButton.textContent = `Idle Earning (Cost: ${idleUpgradeCost}G)`;
                 updateAmountDisplay();
             } else {
-                showNotification('Not enough baby oil!');
+                showNotification('Not enough Gold!');
             }
         });
 
@@ -137,9 +202,54 @@
             updateAmountDisplay();
         }, 1000);
 
+        // Quest functionality
+        questList.addEventListener('click', (e) => {
+            if (e.target.tagName === 'LI') {
+                const questCost = parseInt(e.target.getAttribute('data-cost'));
+                const itemName = e.target.getAttribute('data-item');
+
+                if (amount >= questCost) {
+                    amount -= questCost;
+                    addItemToInventory(itemName);
+                    e.target.remove();
+                    updateAmountDisplay();
+                } else {
+                    showNotification('Not enough Gold!');
+                }
+            }
+        });
+
+        // Add item to inventory
+        function addItemToInventory(itemName) {
+            if (inventoryList.querySelector('li').textContent === 'No items yet...') {
+                inventoryList.innerHTML = '';
+            }
+            const newItem = document.createElement('li');
+            newItem.textContent = itemName;
+            inventoryList.appendChild(newItem);
+        }
+
         function updateAmountDisplay() {
             amountDisplay.textContent = amount;
         }
+
+        // Template for creating more buttons
+        /*
+        Example Button Template:
+        <div class="upgrade">
+            <button id="new-upgrade">New Upgrade (Cost: X)</button>
+            <p>Description of the upgrade.</p>
+        </div>
+        */
+
+        // Template for creating more quests
+        /*
+        Example Quest Template:
+        <li id="new-quest" data-cost="X" data-item="New Item">New Quest (Cost: X Gold)</li>
+        */
+
+        // Generate the initial map
+        generateMap();
     </script>
 </body>
 </html>
